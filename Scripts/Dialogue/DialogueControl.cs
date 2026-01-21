@@ -31,6 +31,8 @@ public class DialogueControl : MonoBehaviour
     //Singleton para acesso global ao DialogueControl
     public static DialogueControl instance;
 
+    public bool IsShowing { get => isShowing; set => isShowing = value; }
+
     //inicializa o Singleton antes de qualquer Start()
     public void Awake()
     {
