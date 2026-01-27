@@ -23,7 +23,7 @@ public class NPC_Dialogue : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && playerHit)
         {
-            DialogueControl.instance.Speech(sentences.ToArray());
+            DialogueControl.instance.Speech(sentences.ToArray(), dialogue);
         }
     }
 
