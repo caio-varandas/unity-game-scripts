@@ -20,6 +20,7 @@ public class DialogueControl : MonoBehaviour
     public Image profileSprite;
     public Text speechText;
     public Text actorNameText;
+    private DialogueSettings currentDialogue;
 
     [Header("Settings")]
     public float typingSpeed;
@@ -43,6 +44,7 @@ public class DialogueControl : MonoBehaviour
     IEnumerator TypeSentence()
     {
         speechText.text = "";
+        profileSprite.sprite = currentDialogue.dialogues[index].profile;
         foreach (char letter in sentences[index].ToCharArray())
         {
             speechText.text += letter;
@@ -72,10 +74,11 @@ public class DialogueControl : MonoBehaviour
     }
 
     
-    public void Speech(string[] txt)
+    public void Speech(string[] txt, DialogueSettings dialogue)
     {
         if (!isShowing)
         {
+            currentDialogue = dialogue;
             dialogueObj.SetActive(true);
             sentences = txt;
             StartCoroutine(TypeSentence());
