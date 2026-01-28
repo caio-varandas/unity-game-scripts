@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     private bool _isRunning;
     private bool _isRoolling;
     private bool _isCutting;
+    private bool _isDigging;
 
     //direção de movimento do player
     private Vector2 _direction;
@@ -38,6 +39,11 @@ public class Player : MonoBehaviour
         get { return _isCutting; }
         set { _isCutting = value; }
     }
+    public bool isDigging
+    {
+        get { return _isDigging; }
+        set { _isDigging = value; }
+    }
 
     private void Start()
     {
@@ -47,10 +53,19 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            handlingObj = 0;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            handlingObj = 1;
+        }
         OnInput();
         OnRun();
         OnRolling();
         OnCutting();
+        OnDig();
     }
 
     private void FixedUpdate()
@@ -63,17 +78,37 @@ public class Player : MonoBehaviour
     //organizar um bloco de codigo
     #region Movement
 
-     void OnCutting()
+    void OnDig()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(handlingObj == 1)
         {
-            _isCutting = true;
-            speed = 0f;
+            if (Input.GetMouseButtonDown(0))
+            {
+                isDigging = true;
+                speed = 0f;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                isDigging = false;
+                speed = initialSpeed;
+            }
         }
-        if (Input.GetMouseButtonUp(0))
+    }
+
+    void OnCutting()
+    {
+        if(handlingObj == 0)
         {
-            _isCutting = false;
-            speed = initialSpeed;
+            if (Input.GetMouseButtonDown(0))
+            {
+                isCutting = true;
+                speed = 0f;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                isCutting = false;
+                speed = initialSpeed;
+            }
         }
     }
 
