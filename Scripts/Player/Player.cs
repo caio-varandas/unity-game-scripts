@@ -15,9 +15,12 @@ public class Player : MonoBehaviour
     private bool _isRoolling;
     private bool _isCutting;
     private bool _isDigging;
+    private bool _isWatering;
 
     //direção de movimento do player
     private Vector2 _direction;
+
+    private int handlingObj;
 
     public Vector2 direction
     { 
@@ -44,10 +47,17 @@ public class Player : MonoBehaviour
         get { return _isDigging; }
         set { _isDigging = value; }
     }
+    public bool isWatering
+    {
+        get { return _isWatering; }
+        set { _isWatering = value; }
+    }
+    public int HandlingObj { get => handlingObj; set => handlingObj = value; }
 
     private void Start()
     {
         rig = GetComponent<Rigidbody2D>();
+        playerItems = GetComponent<PlayerItems>();
         initialSpeed = speed;
     }
 
@@ -55,17 +65,22 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            handlingObj = 0;
+            HandlingObj = 0;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            handlingObj = 1;
+            HandlingObj = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            HandlingObj = 2;
         }
         OnInput();
         OnRun();
         OnRolling();
         OnCutting();
         OnDig();
+        OnWatering();
     }
 
     private void FixedUpdate()
@@ -78,6 +93,27 @@ public class Player : MonoBehaviour
     //organizar um bloco de codigo
     #region Movement
 
+    void OnWatering()
+    {
+        if (HandlingObj == 2)
+        {
+            if (Input.GetMouseButtonDown(0) && playerItems.CurrentWater > 0)
+            {
+                isWatering = true;
+                speed = 0f;
+            }
+            if (Input.GetMouseButtonUp(0) || playerItems.CurrentWater < 0)
+            {
+                isWatering = false;
+                speed = initialSpeed;
+            }
+            if (isWatering)
+            {
+                playerItems.CurrentWater -= 0.01f;
+            }
+        }
+    }
+    
     void OnDig()
     {
         if(handlingObj == 1)
