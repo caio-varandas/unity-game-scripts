@@ -7,11 +7,13 @@ public class PlayerAnim : MonoBehaviour
 {
     private Player player;
     private Animator anim;
+    private Casting cast;
     
     void Start()
     {
         player = GetComponent<Player>();
         anim = GetComponent<Animator>();
+        cast = FindObjectOfType<Casting>();
     }
 
     void Update()
@@ -79,4 +81,26 @@ public class PlayerAnim : MonoBehaviour
     }
 
     #endregion
+
+    //é chamado quando o jogador pressiona o botão de ação na água
+    public void OnCastingStarted()
+    {
+        anim.SetTrigger("isCasting");
+        player.isPaused = true;
+    }
+    //é chamado quando termina de executar a animação de pescaria
+    public void OnCastingEnded()
+    {
+        cast.OnCasting();
+        player.isPaused = false;
+    }
+
+    public void OnHammeringStarted()
+    {
+        anim.SetBool("hammering", true);
+    }
+    public void OnHammeringEnded()
+    {
+        anim.SetBool("hammering", false);
+    }
 }
