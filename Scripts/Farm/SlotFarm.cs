@@ -12,12 +12,13 @@ public class SlotFarm : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int digAmount; //tempo para o player cavar para o buraco aparecer
     [SerializeField] private float waterAmount; //quantidade de aágua para nascer uma cenoura
-
-    [SerializeField] private bool detecting;
+    private bool isWatering;
 
     private int initialDigAmount;
     private float currentWater;
     private bool dugHole;
+    private bool handInside;
+    private bool hasCarrot;
 
     PlayerItems playerItems;
 
@@ -28,26 +29,46 @@ public class SlotFarm : MonoBehaviour
     }
     void Update()
     {
-        if (dugHole)
-        {
-            if (detecting)
-            {
-                currentWater += 0.01f;
-            }
+        if (!dugHole) return;
 
-            if(currentWater >= waterAmount) //encheu total de água necessaria
-            {
-                spriteRenderer.sprite = carrot;
-
-                if(Input.GetKeyDown(KeyCode.E))
-                {
-                    spriteRenderer.sprite = hole;
-                    playerItems.TotalCarrots++;
-                    currentWater = 0f;
-                }
-            }
-        }
+        HandleWatering();
+        HandleHarvest();
         
+    }
+
+    public void HandleWatering()
+    {
+        if (!isWatering || hasCarrot) return;
+
+        currentWater += 0.01f;
+
+        if (currentWater >= waterAmount) //encheu total de água necessaria
+        {
+            GrowCarrot();
+        }
+
+    }
+
+    public void GrowCarrot()
+    {
+        hasCarrot = true;
+        spriteRenderer.sprite = carrot;
+    }
+    public void HandleHarvest()
+    {
+        if (!hasCarrot || !handInside) return;
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Harvest();
+        }
+    }
+    public void Harvest()
+    {
+        hasCarrot = false;
+        currentWater = 0f;
+        spriteRenderer.sprite = hole;
+        playerItems.TotalCarrots++;
     }
     public void OnHit()
     {
@@ -68,14 +89,23 @@ public class SlotFarm : MonoBehaviour
 
         if (collision.CompareTag("Water"))
         {
-            detecting = true;
+            isWatering = true;
+        }
+
+        if (collision.CompareTag("Hand"))
+        {
+            handInside = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Water"))
         {
-            detecting = false;
+            isWatering = false;
+        }
+        if (collision.CompareTag("Hand"))
+        {
+            handInside = false;
         }
     }
 }
