@@ -5,9 +5,19 @@ using UnityEngine;
 //controla as animações do player com base no estado de movimento
 public class PlayerAnim : MonoBehaviour
 {
+    [Header("Attack Settings")]
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float radius;
+    [SerializeField] private LayerMask enemyLayer;
+    
     private Player player;
     private Animator anim;
+    
     private Casting cast;
+
+    private bool isHitting;
+    private float timeCount;
+    [SerializeField] private float recoveryTime = 1.5f;
     
     void Start()
     {
@@ -20,6 +30,17 @@ public class PlayerAnim : MonoBehaviour
     {
         OnMove();
         OnRun();
+
+        if (isHitting)
+        {
+            timeCount += Time.deltaTime;
+
+            if (timeCount >= recoveryTime)
+            {
+                isHitting = false;
+                timeCount = 0f;
+            }
+        }
     }
 
 
@@ -28,11 +49,14 @@ public class PlayerAnim : MonoBehaviour
     //controla animações de movimento e rolagem
     void OnMove()
     {
-        if (player.direction.sqrMagnitude > 0)
-        {
+         if (player.direction.sqrMagnitude > 0)
+        {//esta andando
             if (player.isRolling)
             {
-                anim.SetTrigger("isRoll");
+                if (!anim.GetCurrentAnimatorStateInfo(0).IsName("roll"))
+                {//se a animação não estiver sendo executada então executa
+                    anim.SetTrigger("isRoll");
+                }
             }
             else
             {
@@ -40,7 +64,7 @@ public class PlayerAnim : MonoBehaviour
             }
         }
         else
-        {
+        {//não esta
             anim.SetInteger("transition", 0);
         }
 
@@ -74,7 +98,7 @@ public class PlayerAnim : MonoBehaviour
     //controla animação de corrida
     void OnRun()
     {
-        if (player.isRunning)
+        if (player.isRunning && player.direction.sqrMagnitude > 0)
         {
             anim.SetInteger("transition", 2);
         }
@@ -82,13 +106,31 @@ public class PlayerAnim : MonoBehaviour
 
     #endregion
 
-    //é chamado quando o jogador pressiona o botão de ação na água
+    #region Attack
+
+    public void OnAttack()
+    {
+        Collider2D hit = Physics2D.OverlapCircle(attackPoint.position, radius, enemyLayer);
+
+        if(hit != null)
+        {
+            hit.GetComponentInChildren<AnimationControl>().OnHit();
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(attackPoint.position, radius);
+    }
+
+    #endregion
+
     public void OnCastingStarted()
     {
         anim.SetTrigger("isCasting");
         player.isPaused = true;
     }
-    //é chamado quando termina de executar a animação de pescaria
+    
     public void OnCastingEnded()
     {
         cast.OnCasting();
@@ -97,10 +139,19 @@ public class PlayerAnim : MonoBehaviour
 
     public void OnHammeringStarted()
     {
+        transform.eulerAngles = new Vector2(0, 0);
         anim.SetBool("hammering", true);
     }
     public void OnHammeringEnded()
     {
         anim.SetBool("hammering", false);
+    }
+    public void OnHit()
+    {
+        if (!isHitting)
+        {
+            anim.SetTrigger("hit");
+            isHitting = true;
+        }
     }
 }
