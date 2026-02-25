@@ -1,0 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ActorSFX : MonoBehaviour
+{
+    [SerializeField] private AudioSource audioSource;
+
+    //criar metodo que toca o efeito sonoro
+    public void PlaySFX(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
+    }
+}
