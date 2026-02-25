@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class SlotFarm : MonoBehaviour
 {
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip holeSFX;
+    [SerializeField] private AudioClip carrotSFX;
+
     [Header("Components")]
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Sprite hole;
@@ -12,13 +17,15 @@ public class SlotFarm : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int digAmount; //tempo para o player cavar para o buraco aparecer
     [SerializeField] private float waterAmount; //quantidade de aágua para nascer uma cenoura
-    private bool isWatering;
 
+    [SerializeField] private bool detecting;
+    private bool isPlayer;
+    
     private int initialDigAmount;
     private float currentWater;
+
     private bool dugHole;
-    private bool handInside;
-    private bool hasCarrot;
+    private bool plantedCarrot;
 
     PlayerItems playerItems;
 
@@ -29,46 +36,28 @@ public class SlotFarm : MonoBehaviour
     }
     void Update()
     {
-        if (!dugHole) return;
+        if (dugHole)
+        {
+            if (detecting)
+            {
+                currentWater += 0.01f;
+            }
+            if(currentWater >= waterAmount && !plantedCarrot)
+            {
+                audioSource.PlayOneShot(holeSFX);
+                spriteRenderer.sprite = carrot;
 
-        HandleWatering();
-        HandleHarvest();
+                plantedCarrot = true;
+            }
+            if(Input.GetKeyDown(KeyCode.E) && plantedCarrot && isPlayer)
+            {
+                audioSource.PlayOneShot(carrotSFX);
+                spriteRenderer.sprite = hole;
+                playerItems.TotalCarrots++;
+                currentWater = 0f;
+            }
+        }
         
-    }
-
-    public void HandleWatering()
-    {
-        if (!isWatering || hasCarrot) return;
-
-        currentWater += 0.01f;
-
-        if (currentWater >= waterAmount) //encheu total de água necessaria
-        {
-            GrowCarrot();
-        }
-
-    }
-
-    public void GrowCarrot()
-    {
-        hasCarrot = true;
-        spriteRenderer.sprite = carrot;
-    }
-    public void HandleHarvest()
-    {
-        if (!hasCarrot || !handInside) return;
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Harvest();
-        }
-    }
-    public void Harvest()
-    {
-        hasCarrot = false;
-        currentWater = 0f;
-        spriteRenderer.sprite = hole;
-        playerItems.TotalCarrots++;
     }
     public void OnHit()
     {
@@ -89,23 +78,23 @@ public class SlotFarm : MonoBehaviour
 
         if (collision.CompareTag("Water"))
         {
-            isWatering = true;
+            detecting = true;
         }
 
-        if (collision.CompareTag("Hand"))
+        if (collision.CompareTag("Player"))
         {
-            handInside = true;
+            isPlayer = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Water"))
         {
-            isWatering = false;
+            detecting = false;
         }
-        if (collision.CompareTag("Hand"))
+        if (collision.CompareTag("Player"))
         {
-            handInside = false;
+            isPlayer = false;
         }
     }
 }
