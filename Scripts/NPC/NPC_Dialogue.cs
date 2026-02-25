@@ -13,6 +13,8 @@ public class NPC_Dialogue : MonoBehaviour
     bool playerHit;
 
     private List<string> sentences = new List<string>(); //frases filtradas pelo idioma atual
+    private List<string> actorName = new List<string>();
+    private List<Sprite> actorSprite = new List<Sprite>();
 
     void Start()
     {
@@ -46,6 +48,8 @@ public class NPC_Dialogue : MonoBehaviour
                     sentences.Add(dialogue.dialogues[i].sentence.spanish);
                     break;
             }
+            actorName.Add(dialogue.dialogues[i].actorName);
+            actorSprite.Add(dialogue.dialogues[i].profile);
         }
     }
 
