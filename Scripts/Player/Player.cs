@@ -22,6 +22,8 @@ public class Player : MonoBehaviour
 
     private int handlingObj;
 
+    [SerializeField] private GameObject pauseCanvas;
+
     public Vector2 direction
     { 
         get { return _direction; }
@@ -63,24 +65,32 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (!isPaused)
         {
-            HandlingObj = 0;
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                HandlingObj = 0;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                HandlingObj = 1;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                HandlingObj = 2;
+            }
+
+            OnInput();
+            OnRun();
+            OnRolling();
+            OnCutting();
+            OnDig();
+            OnWatering();
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            HandlingObj = 1;
+            TogglePause();
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            HandlingObj = 2;
-        }
-        OnInput();
-        OnRun();
-        OnRolling();
-        OnCutting();
-        OnDig();
-        OnWatering();
     }
 
     private void FixedUpdate()
@@ -189,4 +199,22 @@ public class Player : MonoBehaviour
     }
 
     #endregion
+
+    void TogglePause()
+    {
+        isPaused = !isPaused;
+
+        if (isPaused)
+        {
+            Time.timeScale = 0f;
+            pauseCanvas.SetActive(true);
+            Unlock();
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            pauseCanvas.SetActive(false);
+            Lock();
+        }
+    }
 }
