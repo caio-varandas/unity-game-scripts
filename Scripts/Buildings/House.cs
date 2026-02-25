@@ -7,8 +7,12 @@ public class House : MonoBehaviour
     [Header("Amounts")]
     [SerializeField] private int woodAmount;
     [SerializeField] private Color startColor;
+    [SerializeField] private Color colorNoWood;
     [SerializeField] private Color endColor;
     [SerializeField] private float timeAmount;
+
+    [Header("Visual Settings")]
+    [SerializeField, Range(0f, 1f)] private float noWoodAlpha = 0.5f;
 
     [Header("Components")]
     [SerializeField] private GameObject houseColl;
@@ -33,7 +37,21 @@ public class House : MonoBehaviour
     
     void Update()
     {
-        if(detectingPlayer && Input.GetKeyDown(KeyCode.E) && playerItems.TotalWood >= woodAmount)
+        if (detectingPlayer && !isBegining)
+        {
+            if (playerItems.TotalWood < woodAmount)
+            {
+                Color c = colorNoWood;
+                c.a = noWoodAlpha;
+                houseSprite.color = c;
+            }
+            else
+            {
+                houseSprite.color = startColor;
+            }
+        }
+
+        if (detectingPlayer && Input.GetKeyDown(KeyCode.E) && playerItems.TotalWood >= woodAmount)
         {//construção é inicializada
             isBegining = true;
             playerAnim.OnHammeringStarted();
@@ -43,14 +61,17 @@ public class House : MonoBehaviour
             playerItems.TotalWood -= woodAmount;
         }
 
+
         if (isBegining)
         {
             timeCount += Time.deltaTime;
 
             if(timeCount >= timeAmount)
             {//casa é finalizada
+                isBegining = false;
                 playerAnim.OnHammeringEnded();
                 houseSprite.color = endColor;
+                houseSprite.enabled = true;
                 player.isPaused = false;
                 houseColl.SetActive(true);
             }
@@ -62,6 +83,7 @@ public class House : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             detectingPlayer = true;
+            houseSprite.enabled = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -69,6 +91,10 @@ public class House : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             detectingPlayer = false;
+            if (!isBegining)
+            {
+                houseSprite.enabled = false;
+            }
         }
     }
 }
